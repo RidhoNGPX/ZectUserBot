@@ -4,11 +4,11 @@ import asyncio
 
 from pitik import app
 from config import LOG_CHAT
-from pitik.helpers.pyrohelper import get_arg
-import pitik.database.afkdb as pitik
-from pitik.helpers.pyrohelper import user_afk
-from pitik.modules.alive import get_readable_time
-from pitik.helpers.utils import get_message_type, Types
+from Zect.helpers.pyrohelper import get_arg
+import Zect.database.afkdb as pitik
+from Zect.helpers.pyrohelper import user_afk
+from Zect.modules.alive import get_readable_time
+from Zect.helpers.utils import get_message_type, Types
 
 
 LOG_CHAT = LOG_CHAT
