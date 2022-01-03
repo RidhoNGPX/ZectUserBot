@@ -2,7 +2,7 @@ import time
 from pyrogram import filters
 import asyncio
 
-from pitik import app
+from Zect import app
 from config import LOG_CHAT
 from Zect.helpers.pyrohelper import get_arg
 import Zect.database.afkdb as pitik
