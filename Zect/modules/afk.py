@@ -27,7 +27,7 @@ async def afk(client, message):
     else:
         reason = arg
     await pitik.set_afk(True, afk_time, reason)
-    await message.reply("**Aku bakal lunga afk**")
+    await message.edit("**Aku bakal lunga afk**")
 
 
 @app.on_message(filters.mentioned & ~filters.bot & filters.create(user_afk), group=11)
