@@ -1,32 +1,15 @@
-# Copyright (C) 2020-2021 by okay-retard@Github, < https://github.com/okay-retard >.
-#
-# This file is part of < https://github.com/okay-retard/ZectUserBot > project,
-# and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/okay-retard/ZectUserBot/blob/master/LICENSE >
-#
-# All rights reserved.
-
 import time
 from pyrogram import filters
 import asyncio
 
-from Zect import app, CMD_HELP
-from config import PREFIX, LOG_CHAT
-from Zect.helpers.pyrohelper import get_arg
-import Zect.database.afkdb as Zect
-from Zect.helpers.pyrohelper import user_afk
-from Zect.modules.alive import get_readable_time
-from Zect.helpers.utils import get_message_type, Types
+from pitik import app
+from config import LOG_CHAT
+from pitik.helpers.pyrohelper import get_arg
+import pitik.database.afkdb as pitik
+from pitik.helpers.pyrohelper import user_afk
+from pitik.modules.alive import get_readable_time
+from pitik.helpers.utils import get_message_type, Types
 
-CMD_HELP.update(
-    {
-        "AFK": """
-『 **AFK** 』
-  `afk [reason]` -> Provides a message saying that you are unavailable.
-  `unafk` -> Remove the AFK status.
-"""
-    }
-)
 
 LOG_CHAT = LOG_CHAT
 
@@ -35,7 +18,7 @@ AFK_RESTIRECT = {}
 DELAY_TIME = 60
 
 
-@app.on_message(filters.command("afk", PREFIX) & filters.me)
+@app.on_message(filters.command("afk"))
 async def afk(client, message):
     afk_time = int(time.time())
     arg = get_arg(message)
@@ -43,14 +26,14 @@ async def afk(client, message):
         reason = None
     else:
         reason = arg
-    await Zect.set_afk(True, afk_time, reason)
-    await message.edit("**I'm goin' AFK**")
+    await pitik.set_afk(True, afk_time, reason)
+    await message.reply("**Aku bakal lunga afk**")
 
 
 @app.on_message(filters.mentioned & ~filters.bot & filters.create(user_afk), group=11)
 async def afk_mentioned(_, message):
     global MENTIONED
-    afk_time, reason = await Zect.afk_stuff()
+    afk_time, reason = await pitik.afk_stuff()
     afk_since = get_readable_time(time.time() - afk_time)
     if "-" in str(message.chat.id):
         cid = str(message.chat.id)[4:]
@@ -62,10 +45,10 @@ async def afk_mentioned(_, message):
     AFK_RESTIRECT[cid] = int(time.time()) + DELAY_TIME
     if reason:
         await message.reply(
-            f"**I'm AFK right now (since {afk_since})\nReason:** __{reason}__"
+            f"**Aku Afk Saiki**\n**awit**: `{afk_since}`\n**Alesane:** __{reason}__"
         )
     else:
-        await message.reply(f"**I'm AFK right now (since {afk_since})**")
+        await message.reply(f"**Aku Afk Saiki (awit {afk_since})**")
 
         _, message_type = get_message_type(message)
         if message_type == Types.TEXT:
@@ -87,10 +70,10 @@ async def afk_mentioned(_, message):
 
 @app.on_message(filters.create(user_afk) & filters.outgoing)
 async def auto_unafk(_, message):
-    await Zect.set_unafk()
+    await pitik.set_unafk()
     unafk_message = await app.send_message(message.chat.id, "**I'm no longer AFK**")
     global MENTIONED
-    text = "**Total {} mentioned you**\n".format(len(MENTIONED))
+    text = "**Total {} sebutno sampeyan**\n".format(len(MENTIONED))
     for x in MENTIONED:
         msg_text = x["text"]
         if len(msg_text) >= 11:
@@ -102,7 +85,7 @@ async def auto_unafk(_, message):
             x["chat"],
             msg_text,
         )
-        await app.send_message(LOG_CHAT, text)
+        await app.send_message(chat_id=LOG_CHAT, text=text)
         MENTIONED = []
     await asyncio.sleep(2)
     await unafk_message.delete()
