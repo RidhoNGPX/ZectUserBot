@@ -1,11 +1,3 @@
-# Copyright (C) 2020-2021 by okay-retard@Github, < https://github.com/okay-retard >.
-#
-# This file is part of < https://github.com/okay-retard/ZectUserBot > project,
-# and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/okay-retard/ZectUserBot/blob/master/LICENSE >
-#
-# All rights reserved.
-
 import io
 import os
 import random
@@ -16,22 +8,23 @@ from pyrogram import emoji, filters
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.types import InputStickerSetShortName
 from pyrogram.errors import YouBlockedUser, StickersetInvalid
-from Zect.helpers.pyrohelper import get_args
-from Zect import app, CMD_HELP
+from pitik.helpers.pyrohelper import get_args
+from pitik import app, CMD_HELP
 from config import PREFIX
 
 CMD_HELP.update(
     {
-        "Sticker": """
+        "sticker": """
 『 **Sticker** 』
-  `kang` -> kangs stickers or creates new ones".
+  `colong` -> kangs stickers or creates new ones".
   `stkrinfo` -> Get sticker pack info.
 """
     }
 )
 
 
-@app.on_message(filters.command("kang", PREFIX) & filters.me)
+
+@app.on_message(filters.command("colong", PREFIX) & filters.me)
 async def kang(client, message):
     user = await app.get_me()
     replied = message.reply_to_message
@@ -48,19 +41,19 @@ async def kang(client, message):
             is_anim = True
         elif replied.sticker:
             if not replied.sticker.file_name:
-                await message.edit("`Sticker has no Name!`")
+                await message.edit("`Sticker ora duwe jeneng!`")
                 return
             emoji_ = replied.sticker.emoji
             is_anim = replied.sticker.is_animated
             if not replied.sticker.file_name.endswith(".tgs"):
                 resize = True
         else:
-            await message.edit("`Unsupported File!`")
+            await message.edit("`File sing ora didhukung!`")
             return
         await message.edit(f"`{random.choice(KANGING_STR)}`")
         photo = await app.download_media(message=replied)
     else:
-        await message.edit("`I can't kang that...`")
+        await message.edit("`Aku ora bisa kang...`")
         return
     if photo:
         args = get_args(message)
@@ -85,8 +78,8 @@ async def kang(client, message):
             u_name = "@" + u_name
         else:
             u_name = user.first_name or user.id
-        packname = f"a{user.id}_by_zect_{pack}"
-        custom_packnick = f"{u_name}'s kang pack"
+        packname = f"a{user.id}_by_odier_{pack}"
+        custom_packnick = f"{u_name}' Sticker Nyolong "
         packnick = f"{custom_packnick} Vol.{pack}"
         cmd = "/newpack"
         if resize:
@@ -106,13 +99,13 @@ async def kang(client, message):
             try:
                 await app.send_message("Stickers", "/addsticker")
             except YouBlockedUser:
-                await message.edit("first **unblock** @Stickers")
+                await message.edit("Mbukak kunci dhisik @Stickers")
                 return
             await app.send_message("Stickers", packname)
             limit = "50" if is_anim else "120"
             while limit in await get_response(message):
                 pack += 1
-                packname = f"a{user.id}_by_zect_{pack}"
+                packname = f"a{user.id}_by_pitik_{pack}"
                 packnick = f"{custom_packnick} Vol.{pack}"
                 if is_anim:
                     packname += "_anim"
@@ -130,19 +123,19 @@ async def kang(client, message):
                     await get_response(message)
                     await app.send_message("Stickers", emoji_)
                     await get_response(message)
-                    await app.send_message("Stickers", "/publish")
+                    await app.send_message("Stickers", packname)
                     if is_anim:
                         await get_response(message)
                         await app.send_message(
                             "Stickers", f"<{packnick}>", parse_mode=None
                         )
                     await get_response(message)
-                    await app.send_message("Stickers", "/skip")
+                    await app.send_message("Stickers", "/publish")
                     await get_response(message)
-                    await app.send_message("Stickers", packname)
-                    out = f"[kanged](t.me/addstickers/{packname})"
+                    await app.send_message("Stickers", "/skip")
+                    out = f"[Dicolong](t.me/addstickers/{packname})"
                     await message.edit(
-                        f"**Sticker** {out} __in a Different Pack__**!**"
+                        f"**Stikere Wis** {out} __in a Different Pack__**🙏😎**"
                     )
                     return
             await app.send_document("Stickers", photo)
@@ -150,19 +143,19 @@ async def kang(client, message):
             rsp = await get_response(message)
             if "Sorry, the file type is invalid." in rsp:
                 await message.edit(
-                    "`Failed to add sticker, use` @Stickers "
-                    "`bot to add the sticker manually.`"
+                    "`Gagal nambah stiker, gunakake` @Stickers "
+                    "`bot kanggo nambah stiker kanthi manual.`"
                 )
                 return
             await app.send_message("Stickers", emoji_)
             await get_response(message)
             await app.send_message("Stickers", "/done")
         else:
-            await message.edit("`Brewing a new Pack...`")
+            await message.edit("`nggawe paket stiker anyar...`")
             try:
                 await app.send_message("Stickers", cmd)
             except YouBlockedUser:
-                await message.edit("first **unblock** @Stickers")
+                await message.edit("Mbukak kunci dhisik @Stickers")
                 return
             await app.send_message("Stickers", packnick)
             await get_response(message)
@@ -171,8 +164,8 @@ async def kang(client, message):
             rsp = await get_response(message)
             if "Sorry, the file type is invalid." in rsp:
                 await message.edit(
-                    "`Failed to add sticker, use` @Stickers "
-                    "`bot to add the sticker manually.`"
+                    "`Gagal nambah stiker, gunakake` @Stickers "
+                    "`bot kanggo nambah stiker kanthi manual.`"
                 )
                 return
             await app.send_message("Stickers", emoji_)
@@ -185,8 +178,8 @@ async def kang(client, message):
             await app.send_message("Stickers", "/skip")
             await get_response(message)
             await app.send_message("Stickers", packname)
-        out = f"[kanged](t.me/addstickers/{packname})"
-        await message.edit(f"**Sticker** {out}**!**")
+        out = f"[Dicolong](t.me/addstickers/{packname})"
+        await message.edit(f"**Stikere wis** {out}**🙏😎**")
         await app.read_history("Stickers")
         if os.path.exists(str(photo)):
             os.remove(photo)
@@ -196,12 +189,12 @@ async def kang(client, message):
 async def sticker_pack_info_(client, message):
     replied = message.reply_to_message
     if not replied:
-        await message.edit("`I can't fetch info from nothing, can I ?!`")
+        await message.edit("`Aku ora bisa njupuk info saka apa-apa, bisa ?!`")
         return
     if not replied.sticker:
-        await message.edit("`Reply to a sticker to get the pack details`")
+        await message.edit("`Mbales stiker kanggo entuk rincian pack`")
         return
-    await message.edit("`Fetching details of the sticker pack, please wait..`")
+    await message.edit("`Njupuk Rincian Paket Stiker, mangga tunggu..`")
     get_stickerset = await app.send(
         GetStickerSet(
             stickerset=InputStickerSetShortName(short_name=replied.sticker.set_name)
@@ -243,14 +236,12 @@ async def get_response(message):
 
 
 KANGING_STR = (
-    "Using Witchery to kang this sticker...",
-    "Plagiarising hehe...",
-    "Inviting this sticker over to my pack...",
-    "Kanging this sticker...",
-    "Hey that's a nice sticker!\nMind if I kang?!..",
-    "hehe me stel ur stikér\nhehe.",
-    "Ay look over there (☉｡☉)!→\nWhile I kang this...",
-    "Roses are red violets are blue, kanging this sticker so my pacc looks cool",
-    "Imprisoning this sticker...",
-    "Mr.Steal Your Sticker is stealing this sticker... ",
+    "Nggunakake Sihir kanggo nyolong stiker iki...",
+    "Tak colong yo stikere hehe...",
+    "Ngundang stiker iki menyang paket...",
+    "Lagi Nyolong stiker iki...",
+    "Hey iki stikere apik yo!\nApa olih tak colong?!..",
+    "Hehe Aku nyolong stikere koe\nhehe.",
+    "Delengen ana stiker apik (☉.☉)!→\nTek colong lah...",
+    "Penjara stiker iki...",
 )
