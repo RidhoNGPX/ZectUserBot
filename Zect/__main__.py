@@ -15,5 +15,5 @@ from Zect.modules import *
 app.start()
 me = app.get_me()
 print(f"UserBot started for user {me.id}. Type {PREFIX}help in any telegram chat.")
-app.send_message(chat_id=LOG_CHAT, text="**Userbot Started**"
+app.send_message(chat_id=LOG_CHAT, text="**Userbot Started**")
 idle()
