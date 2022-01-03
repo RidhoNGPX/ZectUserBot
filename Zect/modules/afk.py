@@ -18,7 +18,7 @@ AFK_RESTIRECT = {}
 DELAY_TIME = 60
 
 
-@app.on_message(filters.command("afk", PREFIX) & fiters.me)
+@app.on_message(filters.command("afk", PREFIX) & filters.me)
 async def afk(client, message):
     afk_time = int(time.time())
     arg = get_arg(message)
