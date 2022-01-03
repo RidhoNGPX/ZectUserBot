@@ -12,11 +12,11 @@ from config import HEROKU_APP_NAME, HEROKU_API, PREFIX
 @app.on_message(filters.command("usage", PREFIX) & filters.me)
 async def dyno_usage(_, message):
     heroku_api = "https://api.heroku.com"
-    if HEROKU_API_KEY is not None and HEROKU_APP_NAME is not None:
-        Heroku = heroku3.from_key(HEROKU_API_KEY)
+    if HEROKU_API is not None and HEROKU_APP_NAME is not None:
+        Heroku = heroku3.from_key(HEROKU_API)
         app = Heroku.app(HEROKU_APP_NAME)
     else:
-        await message.edit("Please insert your HEROKU_APP_NAME and HEROKU_API_KEY in Vars")
+        await message.edit("Please insert your HEROKU_APP_NAME and HEROKU_API in Vars")
     useragent = (
         "Mozilla/5.0 (Linux; Android 10; SM-G975F) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -25,7 +25,7 @@ async def dyno_usage(_, message):
     user_id = Heroku.account().id
     headers = {
         "User-Agent": useragent,
-        "Authorization": f"Bearer {HEROKU_API_KEY}",
+        "Authorization": f"Bearer {HEROKU_API}",
         "Accept": "application/vnd.heroku+json; version=3.account-quotas",
     }
     path = "/accounts/" + user_id + "/actions/get-quota"
