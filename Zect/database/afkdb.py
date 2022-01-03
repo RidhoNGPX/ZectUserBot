@@ -1,7 +1,7 @@
 from . import cli
 import asyncio
 
-collection = cli["zect"]["afk"]
+collection = cli["Zect"]["afk"]
 
 
 async def set_afk(afk_status, afk_since, reason):
