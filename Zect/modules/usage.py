@@ -4,7 +4,7 @@ import requests
 import heroku3
 from Zect import app
 from pyrogram import filters
-from config import HEROKU_APP_NAME, HEROKU_API, OWNER_ID, PREFIX
+from config import HEROKU_APP_NAME, HEROKU_API, PREFIX
 
 
 
