@@ -76,7 +76,7 @@ async def auto_unafk(_, message):
     text = "**Total {} sebutno sampeyan**\n".format(len(MENTIONED))
     for x in MENTIONED:
         msg_text = x["text"]
-        if len(msg_text) >= 11:
+        if len(msg_text) >= 1:
             msg_text = "{}...".format(x["text"])
         text += "- [{}](https://t.me/c/{}/{}) ({}): {}\n".format(
             x["user"],
