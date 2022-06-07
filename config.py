@@ -1,8 +1,8 @@
-import os
-
-API_HASH = "692a022828c7470d13e517b856812afd"
-API_ID = 1224490
-MONGO_URI = "mongodb+srv://ridho:ridho230900@cluster0.s2tqv.mongodb.net/ridho?retryWrites=true&w=majority"
-SESSION = "BQCuwsBVw_GsQ1AUrPCq1V8YyteguQEOaQ2r0tIBnBrNlkyCMmkrTiNzzP8WRm1gcIJ9nZSUiyfgdW-r80wT_HSPgZR9sAXHSr688v0S4LUOhwpX40nKRKlLZOAXFAzkMOdrV8azYKAnbHFtHVkTy3tVIJKHKvaa-67y1KjGrmQrY5qfmwcDYv4r1ZNZk_mqhZw8eYMqkTwVP9wSgySdFvEBWkJrE4t0jKfCb2YA26_-Ac3l58JyFvYMVENqdPJSQXMe2R8Gw_K9_BGbKRNmwxD-mmKGxX8Ae8rXi2eGDZE4n88pl2xgys0-06-ljMHjHtMMlpb0yIGftF8O0v7AErRaQDzGNAA"
-PREFIX = "."
-LOG_CHAT = -1001543036801
+API_HASH = os.getenv("API_HASH")
+API_ID = int(os.getenv("API_ID"))
+MONGO_URI = os.getenv("MONGO_URI")
+SESSION = os.getenv("SESSION")
+PREFIX = os.getenv("PREFIX")
+LOG_CHAT = int(os.getenv("LOG_CHAT"))
+HEROKU_API = os.getenv("HEROKU_API")
+HEROKU_APP_NAME = os.getenv("HEROKU_APP_NAME")
