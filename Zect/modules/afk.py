@@ -86,5 +86,6 @@ async def auto_unafk(_, message):
             msg_text,
         )
         await app.send_message(chat_id=LOG_CHAT, text=text)
+        MENTIONED = []
     await asyncio.sleep(2)
     await unafk_message.delete()
