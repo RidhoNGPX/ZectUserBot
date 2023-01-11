@@ -135,6 +135,7 @@ async def kang(client, message):
                             "Stickers", f"<{packnick}>", parse_mode=None
                         )
                     await get_response(message)
+                    await get_response(message)
                     await app.send_message("Stickers", "/publish")
                     await get_response(message)
                     await app.send_message("Stickers", "/skip")
