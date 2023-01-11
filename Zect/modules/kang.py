@@ -1,3 +1,11 @@
+# Copyright (C) 2020-2021 by okay-retard@Github, < https://github.com/okay-retard >.
+#
+# This file is part of < https://github.com/okay-retard/ZectUserBot > project,
+# and is released under the "GNU v3.0 License Agreement".
+# Please see < https://github.com/okay-retard/ZectUserBot/blob/master/LICENSE >
+#
+# All rights reserved.
+
 import io
 import os
 import random
@@ -121,15 +129,13 @@ async def kang(client, message):
                     await app.send_document("Stickers", photo)
                     await get_response(message)
                     await app.send_message("Stickers", emoji_)
-                    await get_response(message)
-                    await app.send_message("Stickers", "/publish")
                     if is_anim:
                         await get_response(message)
                         await app.send_message(
                             "Stickers", f"<{packnick}>", parse_mode=None
                         )
                     await get_response(message)
-                    await app.send_message("Stickers", packname)
+                    await app.send_message("Stickers", "/publish")
                     await get_response(message)
                     await app.send_message("Stickers", "/skip")
                     await get_response(message)
@@ -171,12 +177,10 @@ async def kang(client, message):
                 return
             await app.send_message("Stickers", emoji_)
             await get_response(message)
-            await app.send_message("Stickers", "/publish")
             if is_anim:
                 await get_response(message)
                 await app.send_message("Stickers", f"<{packnick}>", parse_mode=None)
-            await get_response(message)
-            await app.send_message("Stickers", packname)
+            await app.send_message("Stickers", "/publish")
             await get_response(message)
             await app.send_message("Stickers", "/skip")
             await get_response(message)
@@ -221,7 +225,7 @@ async def sticker_pack_info_(client, message):
 
 
 def resize_photo(photo: str) -> io.BytesIO:
-    """ Resize the given photo to 512x512 """
+    """Resize the given photo to 512x512"""
     image = Image.open(photo)
     maxsize = 512
     scale = maxsize / max(image.width, image.height)
