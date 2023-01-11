@@ -129,6 +129,8 @@ async def kang(client, message):
                             "Stickers", f"<{packnick}>", parse_mode=None
                         )
                     await get_response(message)
+                    await app.send_message("Stickers", packname)
+                    await get_response(message)
                     await app.send_message("Stickers", "/skip")
                     await get_response(message)
                     await app.send_message("Stickers", packname)
@@ -173,6 +175,8 @@ async def kang(client, message):
             if is_anim:
                 await get_response(message)
                 await app.send_message("Stickers", f"<{packnick}>", parse_mode=None)
+            await get_response(message)
+            await app.send_message("Stickers", packname)
             await get_response(message)
             await app.send_message("Stickers", "/skip")
             await get_response(message)
