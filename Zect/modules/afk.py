@@ -9,7 +9,7 @@ from Zect.helpers.msg_types import Types, get_message_type
 from Zect.helpers.parser import mention_markdown, escape_markdown
 
 if DB_AVAILABLE:
-    from Od.database.sql.afk_db import set_afk, get_afk
+    from Zect.database.sql.afk_db import set_afk, get_afk
 
 __MODULE__ = "AFK"
 __HELP__ = """
