@@ -1,61 +1,49 @@
 import time
 
-from pyrogram import filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram import Client, filters
+from pyrogram.types import Message
 
-from config import Config
-from Zect import app, bot, DB_AVAILABLE, PREFIX
+
+from config import LOG_CHAT, PREFIX
+from Zect import app
 from Zect.helpers.msg_types import Types, get_message_type
-from Zect.helpers.parser import mention_markdown, escape_markdown
+from Zect.helpers.parser import escape_markdown, mention_markdown
+from Zect.database.sql.afk_db import get_afk, set_afk
 
-if DB_AVAILABLE:
-    from Zect.database.sql.afk_db import set_afk, get_afk
 
-__MODULE__ = "AFK"
-__HELP__ = """
-Set yourself to afk.
-When marked as AFK, any mentions will be replied to with a message to say you're not available!
-And that mentioned will notify you by your Assistant.
-If you're restart your bot, all counter and data in cache will be reset.
-But you will still in afk, and always reply when got mentioned.
-──「 **Set AFK status** 」── -> `afk (*reason)` Set yourself to afk, give a reason if need. When someone tag you, 
-you will says in afk with reason, and that mentioned will sent in your assistant PM. 
-To exit from afk status, send anything to anywhere, exclude PM and saved message.
-* = Optional
-"""
 
-# Set priority to 11 and 12
 MENTIONED = []
 AFK_RESTIRECT = {}
-DELAY_TIME = 60  # seconds
+DELAY_TIME = 3  # seconds
 
 
-@app.on_message(filters.me & (filters.command(["afk"], PREFIX) | filters.regex("^brb ")))
-async def afk(_client, message):
-    if not DB_AVAILABLE:
-        await message.edit("Your database is not avaiable!")
-        return
+@app.on_message(filters.me & filters.command("afk", cmd))
+async def afk(client: Client, message: Message):
     if len(message.text.split()) >= 2:
         set_afk(True, message.text.split(None, 1)[1])
         await message.edit(
-            "{} is now AFK!\nBecause of {}".format(mention_markdown(message.from_user.id, message.from_user.first_name),
-                                                   message.text.split(None, 1)[1]))
-        await bot.send_message(Config.LOG_CHAT, "You are now AFK!\nBecause of {}".format(message.text.split(None, 1)[1]))
+            "{} <b>Iam AFK! Right Now!</b>\n<b>Reason :</b> <code>{}</code>".format(
+                mention_markdown(message.from_user.id, message.from_user.first_name),
+                message.text.split(None, 1)[1],
+            )
+        )
     else:
         set_afk(True, "")
         await message.edit(
-            "{} is now AFK!".format(mention_markdown(message.from_user.id, message.from_user.first_name)))
-        await bot.send_message(Config.LOG_CHAT, "You are now AFK!")
+            "{} <b>Iam AFK! Right Now!</b>".format(
+                mention_markdown(message.from_user.id, message.from_user.first_name)
+            )
+        )
     await message.stop_propagation()
 
 
-@app.on_message(filters.mentioned & ~filters.bot, group=11)
-async def afk_mentioned(_client, message):
-    if not DB_AVAILABLE:
-        return
+@app.on_message(
+    (filters.mentioned | filters.private) & filters.incoming & ~filters.bot, group=11
+)
+async def afk_mentioned(client: Client, message: Message):
     global MENTIONED
     get = get_afk()
-    if get and get['afk']:
+    if get and get["afk"]:
         if "-" in str(message.chat.id):
             cid = str(message.chat.id)[4:]
         else:
@@ -65,11 +53,16 @@ async def afk_mentioned(_client, message):
             if int(AFK_RESTIRECT[cid]) >= int(time.time()):
                 return
         AFK_RESTIRECT[cid] = int(time.time()) + DELAY_TIME
-        if get['reason']:
+        if get["reason"]:
             await message.reply(
-                "Iam AFK! Right Now!\nReason : {}".format(get['reason']))
+                "{} <b>Iam AFK! Right Now!</b>\n<b>Reason:</b> <code>{}</code>".format(
+                    client.me.mention, get["reason"]
+                )
+            )
         else:
-            await message.reply("Iam AFK! Right Now!")
+            await message.reply(
+                f"<b>Sorry!</b> {client.me.first_name} <b>Iam AFK! Right Now!</b>"
+            )
 
         _, message_type = get_message_type(message)
         if message_type == Types.TEXT:
@@ -81,30 +74,55 @@ async def afk_mentioned(_client, message):
             text = message_type.name
 
         MENTIONED.append(
-            {"user": message.from_user.first_name, "user_id": message.from_user.id, "chat": message.chat.title,
-             "chat_id": cid, "text": text, "message_id": message.message_id})
-        button = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("Go to message", url="https://t.me/c/{}/{}".format(cid, message.message_id))]])
-        await bot.send_message(Config.LOG_CHAT, "{} mentioned you in {}\n\n{}\n\nTotal count: `{}`".format(
-            mention_markdown(message.from_user.id, message.from_user.first_name), message.chat.title, text[:3500],
-            len(MENTIONED)), reply_markup=button)
+            {
+                "user": message.from_user.first_name,
+                "user_id": message.from_user.id,
+                "chat": message.chat.title,
+                "chat_id": cid,
+                "text": text,
+                "message_id": message.id,
+            }
+        )
+        try:
+            await client.send_message(
+                LOG_CHAT,
+                "<b>#MENTION\n • From :</b> {}\n • <b>Chat :</b> <code>{}</code>\n • <b>Message :</b> <code>{}</code>".format(
+                    message.from_user.mention,
+                    message.chat.title,
+                    text[:3500],
+                ),
+            )
+        except BaseException:
+            pass
 
 
 @app.on_message(filters.me & filters.group, group=12)
-async def no_longer_afk(_client, message):
-    if not DB_AVAILABLE:
-        return
+async def no_longer_afk(client: Client, message: Message):
     global MENTIONED
     get = get_afk()
-    if get and get['afk']:
-        await bot.send_message(Config.LOG_CHAT, "You are no longer afk!")
+    if get and get["afk"]:
         set_afk(False, "")
-        text = "**Total {} mentioned you**\n".format(len(MENTIONED))
+        try:
+            await client.send_message(LOG_CHAT, "Anda sudah tidak lagi AFK!")
+        except BaseException:
+            pass
+        text = "<b>Total {} Mention while AFK<b>\n".format(len(MENTIONED))
         for x in MENTIONED:
             msg_text = x["text"]
             if len(msg_text) >= 11:
                 msg_text = "{}...".format(x["text"])
-            text += "- [{}](https://t.me/c/{}/{}) ({}): {}\n".format(escape_markdown(x["user"]), x["chat_id"],
-                                                                     x["message_id"], x["chat"], msg_text)
-        await bot.send_message(Config.LOG_CHAT, text)
+            text += "- [{}](https://t.me/c/{}/{}) ({}): {}\n".format(
+                escape_markdown(x["user"]),
+                x["chat_id"],
+                x["message_id"],
+                x["chat"],
+                msg_text,
+            )
+        try:
+            await client.send_message(LOG_CHAT, text)
+        except BaseException:
+            pass
         MENTIONED = []
+
+
+
