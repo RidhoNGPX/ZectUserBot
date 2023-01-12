@@ -103,7 +103,7 @@ async def no_longer_afk(client: Client, message: Message):
     if get and get["afk"]:
         set_afk(False, "")
         try:
-            await client.send_message(LOG_CHAT, "Anda sudah tidak lagi AFK!")
+            await client.send_message(LOG_CHAT, "You are no longer AFK!")
         except BaseException:
             pass
         text = "<b>Total {} Mention while AFK<b>\n".format(len(MENTIONED))
