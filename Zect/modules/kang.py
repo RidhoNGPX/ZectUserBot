@@ -10,6 +10,7 @@ import io
 import os
 import random
 import time
+import asyncio
 
 from PIL import Image
 from pyrogram import emoji, filters
@@ -135,7 +136,7 @@ async def kang(client, message):
                             "Stickers", f"<{packnick}>", parse_mode=None
                         )
                     await get_response(message)
-                    await app.send_message("Stickers", "/publish")
+                    await asyncio.sleep(3)
                     await get_response(message)
                     await app.send_message("Stickers", "/publish")
                     await get_response(message)
@@ -157,6 +158,7 @@ async def kang(client, message):
                 )
                 return
             await app.send_message("Stickers", emoji_)
+            await asyncio.sleep(3)
             await get_response(message)
             await app.send_message("Stickers", "/done")
         else:
@@ -182,7 +184,7 @@ async def kang(client, message):
             if is_anim:
                 await get_response(message)
                 await app.send_message("Stickers", f"<{packnick}>", parse_mode=None)
-            await app.send_message("Stickers", "/publish")
+            await asyncio.sleep(3)
             await get_response(message)
             await app.send_message("Stickers", "/publish")
             await get_response(message)
