@@ -31,6 +31,4 @@ API_HASH = API_HASH
 SESSION = SESSION
 
 app = Client(SESSION, api_id=API_ID, api_hash=API_HASH)
-bot = Client("Bot", bot_token=BOT_TOKEN, api_id=APP_ID, api_hash=API_HASH)
-
 
