@@ -56,7 +56,7 @@ async def afk_mentioned(client: Client, message: Message):
         if get["reason"]:
             await message.reply(
                 "{} <b>AFK! Right Now!</b>\n<b>Reason:</b> <code>{}</code>".format(
-                    client.me.mention, get["reason"]
+                    get["reason"]
                 )
             )
         else:
