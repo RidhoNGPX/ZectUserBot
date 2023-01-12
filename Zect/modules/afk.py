@@ -5,7 +5,7 @@ from pyrogram.types import Message
 
 
 from config import LOG_CHAT, PREFIX
-from Zect import app
+from Zect import app, CMD_HELP
 from Zect.helpers.msg_types import Types, get_message_type
 from Zect.helpers.parser import escape_markdown, mention_markdown
 from Zect.database.sql.afk_db import get_afk, set_afk
@@ -17,7 +17,7 @@ AFK_RESTIRECT = {}
 DELAY_TIME = 3  # seconds
 
 
-@app.on_message(filters.me & filters.command("afk", cmd))
+@app.on_message(filters.me & filters.command("afk", PREFIX))
 async def afk(client: Client, message: Message):
     if len(message.text.split()) >= 2:
         set_afk(True, message.text.split(None, 1)[1])
@@ -124,5 +124,13 @@ async def no_longer_afk(client: Client, message: Message):
             pass
         MENTIONED = []
 
+CMD_HELP.update(
+    {
+        "AFK": """
+『 **AFK** 』
+  `afk [reason]` -> Provides a message saying that you are unavailable.
+"""
+    }
+)
 
 
