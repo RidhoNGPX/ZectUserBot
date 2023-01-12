@@ -1,108 +1,111 @@
- # Copyright (C) 2020-2021 by okay-retard@Github, < https://github.com/okay-retard >.
-#
-# This file is part of < https://github.com/okay-retard/ZectUserBot > project,
-# and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/okay-retard/ZectUserBot/blob/master/LICENSE >
-#
-# All rights reserved.
-
 import time
+
 from pyrogram import filters
-import asyncio
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from Zect import app, CMD_HELP
-from config import PREFIX, LOG_CHAT
-from Zect.helpers.pyrohelper import get_arg
-import Zect.database.afkdb as Zect
-from Zect.helpers.pyrohelper import user_afk
-from Zect.modules.alive import get_readable_time
-from Zect.helpers.utils import get_message_type, Types
+from config import Config
+from Zect import app, bot, DB_AVAILABLE, PREFIX
+from Zect.helper.msg_types import Types, get_message_type
+from Zect.helper.parser import mention_markdown, escape_markdown
 
-CMD_HELP.update(
-    {
-        "AFK": """
-『 **AFK** 』
-  `afk [reason]` -> Provides a message saying that you are unavailable.
-  `unafk` -> Remove the AFK status.
+if DB_AVAILABLE:
+    from Od.database.sql.afk_db import set_afk, get_afk
+
+__MODULE__ = "AFK"
+__HELP__ = """
+Set yourself to afk.
+When marked as AFK, any mentions will be replied to with a message to say you're not available!
+And that mentioned will notify you by your Assistant.
+If you're restart your bot, all counter and data in cache will be reset.
+But you will still in afk, and always reply when got mentioned.
+──「 **Set AFK status** 」── -> `afk (*reason)` Set yourself to afk, give a reason if need. When someone tag you, 
+you will says in afk with reason, and that mentioned will sent in your assistant PM. 
+To exit from afk status, send anything to anywhere, exclude PM and saved message.
+* = Optional
 """
-    }
-)
 
-LOG_CHAT = LOG_CHAT
-
+# Set priority to 11 and 12
 MENTIONED = []
 AFK_RESTIRECT = {}
-DELAY_TIME = 60
+DELAY_TIME = 60  # seconds
 
+OwnerName = "This Guy"
 
-@app.on_message(filters.command("afk", PREFIX) & filters.me)
-async def afk(client, message):
-    afk_time = int(time.time())
-    arg = get_arg(message)
-    if not arg:
-        reason = None
-    else:
-        reason = arg
-    await Zect.set_afk(True, afk_time, reason)
-    await message.edit("**I'm goin' AFK**")
-
-
-@app.on_message(filters.mentioned & ~filters.bot & filters.create(user_afk), group=11)
-async def afk_mentioned(_, message):
-    global MENTIONED
-    afk_time, reason = await Zect.afk_stuff()
-    afk_since = get_readable_time(time.time() - afk_time)
-    if "-" in str(message.chat.id):
-        cid = str(message.chat.id)[4:]
-    else:
-        cid = str(message.chat.id)
-
-    if cid in list(AFK_RESTIRECT) and int(AFK_RESTIRECT[cid]) >= int(time.time()):
+@app.on_message(filters.me & (filters.command(["afk"], PREFIX) | filters.regex("^brb ")))
+async def afk(_client, message):
+    if not DB_AVAILABLE:
+        await message.edit("Your database is not avaiable!")
         return
-    AFK_RESTIRECT[cid] = int(time.time()) + DELAY_TIME
-    if reason:
-        await message.reply(
-            f"**I'm AFK right now (since {afk_since})\nReason:** __{reason}__"
-        )
+    if len(message.text.split()) >= 2:
+        set_afk(True, message.text.split(None, 1)[1])
+        await message.edit(
+            "{} is now AFK!\nBecause of {}".format(mention_markdown(message.from_user.id, message.from_user.first_name),
+                                                   message.text.split(None, 1)[1]))
+        await bot.send_message(Config.LOG_CHAT, "You are now AFK!\nBecause of {}".format(message.text.split(None, 1)[1]))
     else:
-        await message.reply(f"**I'm AFK right now (since {afk_since})**")
+        set_afk(True, "")
+        await message.edit(
+            "{} is now AFK!".format(mention_markdown(message.from_user.id, message.from_user.first_name)))
+        await bot.send_message(Config.LOG_CHAT, "You are now AFK!")
+    await message.stop_propagation()
+
+
+@app.on_message(filters.mentioned & ~filters.bot, group=11)
+async def afk_mentioned(_client, message):
+    if not DB_AVAILABLE:
+        return
+    global MENTIONED
+    get = get_afk()
+    if get and get['afk']:
+        if "-" in str(message.chat.id):
+            cid = str(message.chat.id)[4:]
+        else:
+            cid = str(message.chat.id)
+
+        if cid in list(AFK_RESTIRECT):
+            if int(AFK_RESTIRECT[cid]) >= int(time.time()):
+                return
+        AFK_RESTIRECT[cid] = int(time.time()) + DELAY_TIME
+        if get['reason']:
+            await message.reply(
+                "Iam AFK! Right Now!\nReason : {}".format(get['reason']))
+        else:
+            await message.reply("Iam AFK! Right Now!")
 
         _, message_type = get_message_type(message)
         if message_type == Types.TEXT:
-            text = message.text or message.caption
+            if message.text:
+                text = message.text
+            else:
+                text = message.caption
         else:
             text = message_type.name
 
         MENTIONED.append(
-            {
-                "user": message.from_user.first_name,
-                "user_id": message.from_user.id,
-                "chat": message.chat.title,
-                "chat_id": cid,
-                "text": text,
-                "message_id": message.message_id,
-            }
-        )
+            {"user": message.from_user.first_name, "user_id": message.from_user.id, "chat": message.chat.title,
+             "chat_id": cid, "text": text, "message_id": message.message_id})
+        button = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("Go to message", url="https://t.me/c/{}/{}".format(cid, message.message_id))]])
+        await bot.send_message(Config.LOG_CHAT, "{} mentioned you in {}\n\n{}\n\nTotal count: `{}`".format(
+            mention_markdown(message.from_user.id, message.from_user.first_name), message.chat.title, text[:3500],
+            len(MENTIONED)), reply_markup=button)
 
 
-@app.on_message(filters.create(user_afk) & filters.outgoing)
-async def auto_unafk(_, message):
-    await Zect.set_unafk()
-    unafk_message = await app.send_message(message.chat.id, "**I'm no longer AFK**")
+@app.on_message(filters.me & filters.group, group=12)
+async def no_longer_afk(_client, message):
+    if not DB_AVAILABLE:
+        return
     global MENTIONED
-    text = "**Total {} mentioned you**\n".format(len(MENTIONED))
-    for x in MENTIONED:
-        msg_text = x["text"]
-        if len(msg_text) >= 11:
-            msg_text = "{}...".format(x["text"])
-        text += "- [{}](https://t.me/c/{}/{}) ({}): {}\n".format(
-            x["user"],
-            x["chat_id"],
-            x["message_id"],
-            x["chat"],
-            msg_text,
-        )
-        await app.send_message(LOG_CHAT, text)
+    get = get_afk()
+    if get and get['afk']:
+        await bot.send_message(Config.LOG_CHAT, "You are no longer afk!")
+        set_afk(False, "")
+        text = "**Total {} mentioned you**\n".format(len(MENTIONED))
+        for x in MENTIONED:
+            msg_text = x["text"]
+            if len(msg_text) >= 11:
+                msg_text = "{}...".format(x["text"])
+            text += "- [{}](https://t.me/c/{}/{}) ({}): {}\n".format(escape_markdown(x["user"]), x["chat_id"],
+                                                                     x["message_id"], x["chat"], msg_text)
+        await bot.send_message(Config.LOG_CHAT, text)
         MENTIONED = []
-    await asyncio.sleep(2)
-    await unafk_message.delete()
