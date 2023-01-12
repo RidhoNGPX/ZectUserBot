@@ -22,7 +22,7 @@ async def afk(client: Client, message: Message):
     if len(message.text.split()) >= 2:
         set_afk(True, message.text.split(None, 1)[1])
         await message.edit(
-            "{} <b>Iam AFK! Right Now!</b>\n<b>Reason :</b> <code>{}</code>".format(
+            "{} <b>AFK! Right Now!</b>\n<b>Reason :</b> <code>{}</code>".format(
                 mention_markdown(message.from_user.id, message.from_user.first_name),
                 message.text.split(None, 1)[1],
             )
@@ -30,7 +30,7 @@ async def afk(client: Client, message: Message):
     else:
         set_afk(True, "")
         await message.edit(
-            "{} <b>Iam AFK! Right Now!</b>".format(
+            "{} <b>AFK! Right Now!</b>".format(
                 mention_markdown(message.from_user.id, message.from_user.first_name)
             )
         )
@@ -55,13 +55,13 @@ async def afk_mentioned(client: Client, message: Message):
         AFK_RESTIRECT[cid] = int(time.time()) + DELAY_TIME
         if get["reason"]:
             await message.reply(
-                "{} <b>Iam AFK! Right Now!</b>\n<b>Reason:</b> <code>{}</code>".format(
+                "{} <b>AFK! Right Now!</b>\n<b>Reason:</b> <code>{}</code>".format(
                     client.me.mention, get["reason"]
                 )
             )
         else:
             await message.reply(
-                f"<b>Sorry!</b> {client.me.first_name} <b>Iam AFK! Right Now!</b>"
+                f"<b>Sorry!</b> {client.me.first_name} <b>AFK! Right Now!</b>"
             )
 
         _, message_type = get_message_type(message)
