@@ -5,8 +5,8 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from config import Config
 from Zect import app, bot, DB_AVAILABLE, PREFIX
-from Zect.helper.msg_types import Types, get_message_type
-from Zect.helper.parser import mention_markdown, escape_markdown
+from Zect.helpers.msg_types import Types, get_message_type
+from Zect.helpers.parser import mention_markdown, escape_markdown
 
 if DB_AVAILABLE:
     from Od.database.sql.afk_db import set_afk, get_afk
@@ -29,7 +29,6 @@ MENTIONED = []
 AFK_RESTIRECT = {}
 DELAY_TIME = 60  # seconds
 
-OwnerName = "This Guy"
 
 @app.on_message(filters.me & (filters.command(["afk"], PREFIX) | filters.regex("^brb ")))
 async def afk(_client, message):
