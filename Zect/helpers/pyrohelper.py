@@ -8,7 +8,6 @@
 
 from pyrogram.types import Message, User
 from pyrogram import Client
-from Zect.database.afkdb import get_afk_status
 from Zect.database.pmpermitdb import get_approved_users, pm_guard
 import Zect.database.welcomedb as Zectdb
 import shlex
@@ -41,12 +40,6 @@ def get_args(message):
     return list(filter(lambda x: len(x) > 0, split))
 
 
-async def user_afk(filter, client: Client, message: Message):
-    check = await get_afk_status()
-    if check:
-        return True
-    else:
-        return False
 
 
 async def denied_users(filter, client: Client, message: Message):
