@@ -4,7 +4,7 @@ import os
 import coc
 from coc import utils
 
-clan_tags = ["#P222C9Y", "#9VPR98RG", "#9G2QU8YG", "#80Y8L0QY", "#2Y28CGP8"]
+clan_tags = ["2G2RQ0GQQ"]
 
 """Clan Events"""
 
